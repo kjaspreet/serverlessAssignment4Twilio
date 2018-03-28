@@ -1,0 +1,23 @@
+service: assignment4
+
+custom:
+  bucket: my-ass4-bucket
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - s3:*
+      Resource: "*"
+
+functions:
+  sendMessage:
+    handler: sendMessage.sendMessage
+    events:
+      - s3: 
+          bucket: ${self:custom.bucket}
+          event: s3:ObjectCreated:*
+
