@@ -3,8 +3,8 @@ const AWS = require('aws-sdk');
 const uuid = require('uuid');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const s3 = new AWS.S3();
-const accountSid = 'AC86cbf57ff93572e3f1fe468f5b6235f3';
-const authToken = '6871ddfc7c5e3aeb727fc09c4eb950c5';
+const accountSid = '<YOUR TWILIO ACCOUNT SID>';
+const authToken = '<YOUR TWILIO AUTH TOKEN>';
 const client = require('twilio')(accountSid, authToken);
 
 module.exports.uploadFile = (event, context, callback) => {
@@ -32,7 +32,7 @@ module.exports.uploadFile = (event, context, callback) => {
 
     client.messages.create({
       from: '+16042452855',
-      to: '+16045124582',
+      to: '<YOUR CELL NUMBER>',
       body: `${filename} was added to your S3 bucket`
     }).then((messsage) => console.log(message.sid));
 
