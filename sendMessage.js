@@ -7,8 +7,8 @@ const client = require('twilio')(
 
 module.exports.sendMessage = (event, context, callback) => {
   client.messages.create({
-  from: '<YOUR TWILIO NUMBER>',
-  to: '<YOUR OWN CELL NUMBER>',
-  body: "New file is added to your S3 bucket"
-}).then((messsage) => console.log(message.sid));
+    from: '<YOUR TWILIO NUMBER>',
+    to: '<YOUR OWN CELL NUMBER>',
+    body: "New file is added to your S3 bucket"
+  }).then((messsage) => console.log(message.sid));
 };

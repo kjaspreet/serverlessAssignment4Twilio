@@ -1,0 +1,487 @@
+{
+  "service": {
+    "service": "dropboxapplication",
+    "serviceObject": {
+      "name": "dropboxapplication"
+    },
+    "provider": {
+      "stage": "dev",
+      "region": "us-west-2",
+      "variableSyntax": "\\${([ ~:a-zA-Z0-9._'\",\\-\\/\\(\\)]+?)}",
+      "name": "aws",
+      "runtime": "nodejs6.10",
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-west-2:*:*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:*"
+          ],
+          "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "lambda:InvokeFunction",
+            "lambda:InvokeAsync"
+          ],
+          "Resource": "*"
+        }
+      ],
+      "versionFunctions": true,
+      "remoteFunctionData": null,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket"
+          },
+          "UploadFileLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/dropboxapplication-dev-uploadFile"
+            }
+          },
+          "DeleteFileLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/dropboxapplication-dev-deleteFile"
+            }
+          },
+          "SendMessageLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/dropboxapplication-dev-sendMessage"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "dev",
+                        "dropboxapplication",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-uploadFile:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-deleteFile:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-sendMessage:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-uploadFile:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-deleteFile:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/dropboxapplication-dev-sendMessage:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][1]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][2]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "dropboxapplication",
+                    "dev",
+                    "us-west-2",
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "UploadFileLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/dropboxapplication/dev/1522230655095-2018-03-28T09:50:55.095Z/dropboxapplication.zip"
+              },
+              "FunctionName": "dropboxapplication-dev-uploadFile",
+              "Handler": "uploadFile.uploadFile",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "UploadFileLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "UploadFileLambdaVersionNcaTeQ6q9lkv40aQI7VuPgWcHr1pG1Xiv3LVD8t9YE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UploadFileLambdaFunction"
+              },
+              "CodeSha256": "mWNXAnUp8dgIkXHcUE4hX3TYO9pc8U+pv3ztAHoPUcc="
+            }
+          },
+          "DeleteFileLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/dropboxapplication/dev/1522230655095-2018-03-28T09:50:55.095Z/dropboxapplication.zip"
+              },
+              "FunctionName": "dropboxapplication-dev-deleteFile",
+              "Handler": "deleteFile.deleteFile",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "DeleteFileLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "DeleteFileLambdaVersionaXYr4nM4E3xXaGP2iGHB6MLeasDMpILjYAYDXW4A": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DeleteFileLambdaFunction"
+              },
+              "CodeSha256": "mWNXAnUp8dgIkXHcUE4hX3TYO9pc8U+pv3ztAHoPUcc="
+            }
+          },
+          "SendMessageLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/dropboxapplication/dev/1522230655095-2018-03-28T09:50:55.095Z/dropboxapplication.zip"
+              },
+              "FunctionName": "dropboxapplication-dev-sendMessage",
+              "Handler": "sendMessage.sendMessage",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "SendMessageLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "SendMessageLambdaVersionUHC6ox2iRDCYtcuCh0jFRuC7gpnIOn1Vmd5EADGwzts": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SendMessageLambdaFunction"
+              },
+              "CodeSha256": "mWNXAnUp8dgIkXHcUE4hX3TYO9pc8U+pv3ztAHoPUcc="
+            }
+          },
+          "S3BucketBucketass3try": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketName": "bucket-ass3-try",
+              "NotificationConfiguration": {
+                "LambdaConfigurations": [
+                  {
+                    "Event": "s3:ObjectCreated:*",
+                    "Function": {
+                      "Fn::GetAtt": [
+                        "UploadFileLambdaFunction",
+                        "Arn"
+                      ]
+                    }
+                  },
+                  {
+                    "Event": "s3:ObjectRemoved:*",
+                    "Function": {
+                      "Fn::GetAtt": [
+                        "DeleteFileLambdaFunction",
+                        "Arn"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "DependsOn": [
+              "UploadFileLambdaPermissionBucketass3tryS3",
+              "DeleteFileLambdaPermissionBucketass3tryS3"
+            ]
+          },
+          "UploadFileLambdaPermissionBucketass3tryS3": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UploadFileLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "s3.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::bucket-ass3-try"
+                  ]
+                ]
+              }
+            }
+          },
+          "DeleteFileLambdaPermissionBucketass3tryS3": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DeleteFileLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "s3.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::bucket-ass3-try"
+                  ]
+                ]
+              }
+            }
+          },
+          "RecordActivityTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              },
+              "TableName": "ass4-table-try"
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          },
+          "UploadFileLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UploadFileLambdaVersionNcaTeQ6q9lkv40aQI7VuPgWcHr1pG1Xiv3LVD8t9YE"
+            }
+          },
+          "DeleteFileLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DeleteFileLambdaVersionaXYr4nM4E3xXaGP2iGHB6MLeasDMpILjYAYDXW4A"
+            }
+          },
+          "SendMessageLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SendMessageLambdaVersionUHC6ox2iRDCYtcuCh0jFRuC7gpnIOn1Vmd5EADGwzts"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket"
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "bucket": "bucket-ass3-try",
+      "table": "ass4-table-try"
+    },
+    "functions": {
+      "uploadFile": {
+        "handler": "uploadFile.uploadFile",
+        "events": [
+          {
+            "s3": {
+              "bucket": "bucket-ass3-try",
+              "event": "s3:ObjectCreated:*"
+            }
+          }
+        ],
+        "name": "dropboxapplication-dev-uploadFile",
+        "package": {},
+        "vpc": {}
+      },
+      "deleteFile": {
+        "handler": "deleteFile.deleteFile",
+        "events": [
+          {
+            "s3": {
+              "bucket": "bucket-ass3-try",
+              "event": "s3:ObjectRemoved:*"
+            }
+          }
+        ],
+        "name": "dropboxapplication-dev-deleteFile",
+        "package": {},
+        "vpc": {}
+      },
+      "sendMessage": {
+        "handler": "sendMessage.sendMessage",
+        "events": [],
+        "name": "dropboxapplication-dev-sendMessage",
+        "package": {},
+        "vpc": {}
+      }
+    },
+    "resources": {
+      "Resources": {
+        "RecordActivityTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "id",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "id",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 1,
+              "WriteCapacityUnits": 1
+            },
+            "TableName": "ass4-table-try"
+          }
+        }
+      },
+      "Outputs": {}
+    },
+    "artifact": "C:\\Users\\Jassi\\Desktop\\New folder (2)\\ServerlessAssignment04-master\\.serverless\\dropboxapplication.zip"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/dropboxapplication/dev/1522230655095-2018-03-28T09:50:55.095Z",
+    "artifact": "dropboxapplication.zip"
+  }
+}
